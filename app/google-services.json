@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "368492894283",
+    "firebase_url": "https://randommusic-40106.firebaseio.com",
+    "project_id": "randommusic-40106",
+    "storage_bucket": "randommusic-40106.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:368492894283:android:964b1be1e4121848",
+        "android_client_info": {
+          "package_name": "com.example.randommusic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "368492894283-387d3gasjcre6drehkrqogiuhtsvpqio.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.randommusic",
+            "certificate_hash": "e45d74ccf3f7269bb8130c081959f4f33bd73d55"
+          }
+        },
+        {
+          "client_id": "368492894283-5s1uo925lud94mkefjsj8migv0mli9nn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKxPcsY9SDOItpXCRAXazMLKYUs9aU-Vs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "368492894283-5s1uo925lud94mkefjsj8migv0mli9nn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
