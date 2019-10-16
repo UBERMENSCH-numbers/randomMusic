@@ -10,7 +10,7 @@ import com.example.randommusic.interfaces.IMediaPlayerEvents
 class MediaPlayerController : OnCompletionListener, OnPreparedListener,
 OnErrorListener, OnSeekCompleteListener, OnInfoListener, OnBufferingUpdateListener, IMediaPlayerEvents {
     private var mediaCallbacks : MediaCallbacks? = null
-
+    val mediaPlayerConnection = MediaPlayerControllerConnection(this)
     private var resumePosition: Int = 0
     private lateinit var mediaPlayer: MediaPlayer
     val TAG = "Player Event"
@@ -96,6 +96,7 @@ OnErrorListener, OnSeekCompleteListener, OnInfoListener, OnBufferingUpdateListen
             mediaPlayer.pause()
             resumePosition = mediaPlayer.currentPosition
         }
+
     }
 
     override fun seekMediaTo(position: Int) {

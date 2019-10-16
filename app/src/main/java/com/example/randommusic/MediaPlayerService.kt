@@ -8,26 +8,40 @@ import com.example.randommusic.interfaces.IMediaPlayerEvents
 
 
 class MediaPlayerService : Service() {
-    private val mediaPlayerController = MediaPlayerController() as IMediaPlayerEvents
+    private val mediaPlayerControllerConnection = MediaPlayerController().mediaPlayerConnection
     private val binderIns = BinderClass()
 
     inner class BinderClass : Binder () {
-        fun getMediaPlayerController() = this@MediaPlayerService.mediaPlayerController
-        fun setMediaCallbacks(callbacks: MediaCallbacks){
-            mediaPlayerController.setMediaCallbacks(callbacks)
-        }
+        fun getMediaPlayerControllerConnection() = mediaPlayerControllerConnection
     }
 
     override fun onDestroy() {
+        isRunning = false
         super.onDestroy()
-        mediaPlayerController.onDestroy()
+        mediaPlayerControllerConnection.iMediaPlayerEvents.onDestroy()
     }
 
     override fun onBind(p0: Intent?): IBinder? {
-        mediaPlayerController.initMediaPlayer()
-        mediaPlayerController.setMediaPath(p0!!.getStringExtra("path"))
+        mediaPlayerControllerConnection.iMediaPlayerEvents.initMediaPlayer()
+        mediaPlayerControllerConnection.iMediaPlayerEvents.setMediaPath(p0!!.getStringExtra("path"))
         return binderIns
     }
+
+    override fun onCreate() {
+        super.onCreate()
+        isRunning = true
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        isRunning = true
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+    companion object {
+        var isRunning = false
+    }
+
+
 
 
 

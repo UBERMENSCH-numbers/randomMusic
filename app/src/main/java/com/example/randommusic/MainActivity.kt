@@ -1,27 +1,22 @@
 package com.example.randommusic
 
-
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.Bundle
-import android.os.IBinder
+import android.os.*
 import android.util.Log
 import android.view.View
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.example.randommusic.interfaces.IMediaPlayerEvents
 import com.google.android.material.snackbar.Snackbar
-import android.os.VibrationEffect
-import android.os.Build
-import android.os.Vibrator
 
 class MainActivity : AppCompatActivity(), MediaCallbacks {
     private lateinit var mMediaController: IMediaPlayerEvents
 
     private lateinit var seek: SeekBar
-    private var mBound = false
+    private var isBound = false
     private var isBuffered = false
 
     override fun updateSeekbar(second: Int) {
@@ -43,15 +38,15 @@ class MainActivity : AppCompatActivity(), MediaCallbacks {
 
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             val binder = service as MediaPlayerService.BinderClass
-            mMediaController = binder.getMediaPlayerController()
-            binder.setMediaCallbacks(this@MainActivity as MediaCallbacks)
+            mMediaController = binder.getMediaPlayerControllerConnection().connectToMediaPlayer(this@MainActivity)
+            mMediaController.setMediaCallbacks(this@MainActivity)
             seek.progress = 0
             seek.secondaryProgress = 0
-            mBound = true
+            isBound = true
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
-            mBound = false
+            isBound = false
         }
     }
 
@@ -59,14 +54,13 @@ class MainActivity : AppCompatActivity(), MediaCallbacks {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         var intent = Intent(this, MediaPlayerService::class.java)
-        intent.putExtra("path","https://firebasestorage.googleapis.com/v0/b/randommusic-40106.appspot.com/o/music%2FBrain%20Damage.mp3?alt=media&token=cafd184b-7152-4025-b7b2-d4bd363cbd42")
+        intent.putExtra("path","https://firebasestorage.googleapis.com/v0/b/randommusic-40106.appspot.com/o/music%2FBrain%20Damage." +
+                "mp3?alt=media&token=cafd184b-7152-4025-b7b2-d4bd363cbd42")
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
         seek = findViewById(R.id.seekBar)
-
         seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onStartTrackingTouch(mp: SeekBar?) {
             }
-
             override fun onProgressChanged(mp: SeekBar?, p1: Int, p2: Boolean) {
                 if(!isBuffered) {
                     mp?.progress = 0
@@ -87,7 +81,11 @@ class MainActivity : AppCompatActivity(), MediaCallbacks {
                     "You can`t use snackbar while media have not buffered", Snackbar.LENGTH_SHORT).show()
             }
         })
-
+    
+//        if (MediaPlayerService.isRunning) {
+//
+//            Log.v("MainActivity", "mediaCallbackSet")
+//        }
 
     }
 
@@ -98,8 +96,9 @@ class MainActivity : AppCompatActivity(), MediaCallbacks {
             R.id.pause -> mMediaController.pauseMedia()
         }
     }
-
 }
+
+
 
 interface MediaCallbacks {
     fun mediaBuffering (progress: Int, duration: Int = -1)
