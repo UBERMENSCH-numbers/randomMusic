@@ -1,21 +1,24 @@
 package com.example.randommusic
 
+import android.content.res.AssetManager
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.MediaPlayer.*
 import android.util.Log
+import androidx.core.content.res.ResourcesCompat
 import com.example.randommusic.interfaces.IMediaPlayerEvents
+import com.example.randommusic.interfaces.IMediaCallbacks
 
 class MediaPlayerController : OnCompletionListener, OnPreparedListener,
 OnErrorListener, OnSeekCompleteListener, OnInfoListener, OnBufferingUpdateListener, IMediaPlayerEvents {
-    private var mediaCallbacks : MediaCallbacks? = null
+    private var mediaCallbacks : IMediaCallbacks? = null
     val mediaPlayerConnection = MediaPlayerControllerConnection(this)
     private var resumePosition: Int = 0
     private lateinit var mediaPlayer: MediaPlayer
     val TAG = "Player Event"
 
-    override fun setMediaCallbacks(callbacks: MediaCallbacks) {
+    override fun setMediaCallbacks(callbacks: IMediaCallbacks) {
         mediaCallbacks = callbacks
     }
 
@@ -54,7 +57,7 @@ OnErrorListener, OnSeekCompleteListener, OnInfoListener, OnBufferingUpdateListen
 
     override fun setMediaPath (path: String) {
         mediaPlayer.reset()
-        mediaPlayer.setDataSource(path)
+        mediaPlayer.setDataSource("")
         mediaPlayer.prepareAsync()
     }
 

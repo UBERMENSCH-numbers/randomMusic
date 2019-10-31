@@ -1,6 +1,6 @@
 package com.example.randommusic.interfaces
 
-import com.example.randommusic.MediaCallbacks
+
 
 interface IMediaPlayerEvents {
     fun playMedia ()
@@ -11,6 +11,6 @@ interface IMediaPlayerEvents {
     fun setMediaPath (path: String)
     fun initMediaPlayer ()
     fun onDestroy ()
-    fun setMediaCallbacks (callbacks: MediaCallbacks)
+    fun setMediaCallbacks (callbacks: IMediaCallbacks)
 }
 

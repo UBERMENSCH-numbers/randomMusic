@@ -7,100 +7,69 @@ import android.content.ServiceConnection
 import android.os.*
 import android.util.Log
 import android.view.View
+import android.widget.ImageButton
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProviders
+import com.example.randommusic.interfaces.IMediaCallbacks
 import com.example.randommusic.interfaces.IMediaPlayerEvents
-import com.google.android.material.snackbar.Snackbar
+import com.example.randommusic.mvp.contracts.MainActivityContract
 
-class MainActivity : AppCompatActivity(), MediaCallbacks {
-    private lateinit var mMediaController: IMediaPlayerEvents
+class MainActivity : AppCompatActivity(), MainActivityContract.View {
+    val TAG = "MainActivityTag"
+    lateinit var model : ViewModel
+//    lateinit var binder : MediaPlayerService.BinderClass
+    lateinit var presenter: MainActivityContract.Presenter
+    lateinit var seekBar : SeekBar
+    lateinit var player : IMediaPlayerEvents
 
-    private lateinit var seek: SeekBar
-    private var isBound = false
-    private var isBuffered = false
+    override fun createConnection(mediaCallbacks: IMediaCallbacks) {
+        val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                val binder = service as MediaPlayerService.BinderClass
+                model.connection = binder.getMediaPlayerControllerConnection()
+                player = model.updateConnection(mediaCallbacks)
 
-    override fun updateSeekbar(second: Int) {
-        seek.progress = second
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {
+                Log.e(TAG, "Service is Dead")
+            }
+
+        }
+        bindService(Intent(this, MediaPlayerService::class.java),connection, Context.BIND_AUTO_CREATE)
     }
 
-    override fun mediaBuffering(progress: Int,duration: Int) {
-        seek.secondaryProgress = progress
-        if (progress == 100) {
-            isBuffered = true
-            seek.max = duration
-            seek.secondaryProgress = seek.max
-            Log.v("Player Event", "Media buffered, duration is ${duration/60000} min, ${duration/1000 - duration/60000*60} sec")
-        }
-
+    override fun restoreConnection(mediaCallbacks: IMediaCallbacks) {
+        player = model.updateConnection(mediaCallbacks)
+        Log.v(TAG, "connection restored")
     }
 
-    private val mConnection = object : ServiceConnection {
-
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            val binder = service as MediaPlayerService.BinderClass
-            mMediaController = binder.getMediaPlayerControllerConnection().connectToMediaPlayer(this@MainActivity)
-            mMediaController.setMediaCallbacks(this@MainActivity)
-            seek.progress = 0
-            seek.secondaryProgress = 0
-            isBound = true
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {
-            isBound = false
-        }
-    }
-
-    override fun onCreate(savedInstanceState:Bundle?)  {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        model = ViewModelProviders.of(this).get(ViewModel::class.java)
         setContentView(R.layout.activity_main)
-        var intent = Intent(this, MediaPlayerService::class.java)
-        intent.putExtra("path","https://firebasestorage.googleapis.com/v0/b/randommusic-40106.appspot.com/o/music%2FBrain%20Damage." +
-                "mp3?alt=media&token=cafd184b-7152-4025-b7b2-d4bd363cbd42")
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
-        seek = findViewById(R.id.seekBar)
-        seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onStartTrackingTouch(mp: SeekBar?) {
-            }
-            override fun onProgressChanged(mp: SeekBar?, p1: Int, p2: Boolean) {
-                if(!isBuffered) {
-                    mp?.progress = 0
-                    val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        v.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
-                    } else {
-                        v.vibrate(50)
-                    }
-                }
-
-            }
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-                if (isBuffered) {
-                    Log.v("Player Event", "Seekbar.max = ${mMediaController.getMediaDuration()}")
-                    mMediaController.seekMediaTo(p0!!.progress)
-                } else Snackbar.make(findViewById(R.id.mainActivityConstraint),
-                    "You can`t use snackbar while media have not buffered", Snackbar.LENGTH_SHORT).show()
-            }
-        })
-    
-//        if (MediaPlayerService.isRunning) {
-//
-//            Log.v("MainActivity", "mediaCallbackSet")
-//        }
-
+        presenter = model.presenter
+        presenter.attachView(this)
+        prepareView()
     }
 
-    fun onClick (view: View) {
-        when(view.id) {
-            R.id.resume -> mMediaController.playMedia()
-            //R.id.next ->
-            R.id.pause -> mMediaController.pauseMedia()
+    private fun prepareView() {
+        seekBar = findViewById(R.id.seekBar)
+        val listener = View.OnClickListener {
+            when (it.id) {
+                R.id.next -> presenter.onAction(Action.NEXT)
+                R.id.pause -> presenter.onAction(Action.PAUSE)
+                R.id.resume -> presenter.onAction(Action.START)
+            }
         }
+        findViewById<ImageButton>(R.id.next).setOnClickListener(listener)
+        findViewById<ImageButton>(R.id.pause).setOnClickListener(listener)
+        findViewById<ImageButton>(R.id.resume).setOnClickListener(listener)
+        presenter.viewIsReady()
     }
+
 }
 
 
 
-interface MediaCallbacks {
-    fun mediaBuffering (progress: Int, duration: Int = -1)
-    fun updateSeekbar (second : Int)
-}
