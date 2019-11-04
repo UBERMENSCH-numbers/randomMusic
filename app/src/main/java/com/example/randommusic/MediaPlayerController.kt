@@ -57,24 +57,31 @@ OnErrorListener, OnSeekCompleteListener, OnInfoListener, OnBufferingUpdateListen
 
     override fun setMediaPath (path: String) {
         mediaPlayer.reset()
-        mediaPlayer.setDataSource("")
+        mediaPlayer.setDataSource("https://firebasestorage.googleapis.com/v0/b/randommusic-40106.appspot.com/o/music%2FThe%20Doors%20-%20Alabama%20Song.mp3?alt=media&token=8bee1f93-03fa-410f-9813-a3ee534f8bb6")
         mediaPlayer.prepareAsync()
     }
 
     override fun initMediaPlayer() {
-        mediaPlayer = MediaPlayer()
-        mediaPlayer.apply {
-            setOnCompletionListener(this@MediaPlayerController)
-            setOnErrorListener(this@MediaPlayerController)
-            setOnPreparedListener(this@MediaPlayerController)
-            setOnBufferingUpdateListener(this@MediaPlayerController)
-            setOnSeekCompleteListener(this@MediaPlayerController)
-            setOnInfoListener(this@MediaPlayerController)
-            setAudioAttributes(AudioAttributes.Builder()
-                .setLegacyStreamType(AudioManager.STREAM_MUSIC)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build())
+        if (::mediaPlayer.isInitialized) {
+            Log.e(TAG, "MEDIA PLAYER IS ALREADY INITED")
+        } else {
+            mediaPlayer = MediaPlayer()
+            mediaPlayer.apply {
+                setOnCompletionListener(this@MediaPlayerController)
+                setOnErrorListener(this@MediaPlayerController)
+                setOnPreparedListener(this@MediaPlayerController)
+                setOnBufferingUpdateListener(this@MediaPlayerController)
+                setOnSeekCompleteListener(this@MediaPlayerController)
+                setOnInfoListener(this@MediaPlayerController)
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+            }
         }
+
     }
 
     override fun onDestroy() {

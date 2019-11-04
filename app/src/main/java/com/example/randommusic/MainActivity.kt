@@ -18,31 +18,31 @@ import com.example.randommusic.mvp.contracts.MainActivityContract
 class MainActivity : AppCompatActivity(), MainActivityContract.View {
     val TAG = "MainActivityTag"
     lateinit var model : ViewModel
-//    lateinit var binder : MediaPlayerService.BinderClass
     lateinit var presenter: MainActivityContract.Presenter
     lateinit var seekBar : SeekBar
     lateinit var player : IMediaPlayerEvents
 
     override fun createConnection(mediaCallbacks: IMediaCallbacks) {
-        val connection = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                val binder = service as MediaPlayerService.BinderClass
-                model.connection = binder.getMediaPlayerControllerConnection()
-                player = model.updateConnection(mediaCallbacks)
+            val connection = object : ServiceConnection {
+                override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                    val binder = service as MediaPlayerService.BinderClass
+                    model.connection = binder.getMediaPlayerControllerConnection()
+                    player = model.updateConnection(mediaCallbacks)
+                    presenter.onReady(player)
+                }
 
+                override fun onServiceDisconnected(name: ComponentName?) {
+                    Log.e(TAG, "Service is Dead")
+                }
             }
-
-            override fun onServiceDisconnected(name: ComponentName?) {
-                Log.e(TAG, "Service is Dead")
-            }
-
-        }
-        bindService(Intent(this, MediaPlayerService::class.java),connection, Context.BIND_AUTO_CREATE)
+            val myService = startService(Intent(this, MediaPlayerService::class.java))
+            bindService(Intent(this, MediaPlayerService::class.java), connection, Context.BIND_AUTO_CREATE)
     }
 
     override fun restoreConnection(mediaCallbacks: IMediaCallbacks) {
         player = model.updateConnection(mediaCallbacks)
         Log.v(TAG, "connection restored")
+        presenter.onReady(player)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +52,13 @@ class MainActivity : AppCompatActivity(), MainActivityContract.View {
         presenter = model.presenter
         presenter.attachView(this)
         prepareView()
+    }
+
+    override fun seekBarTo(position: Int, type: String?) {
+        if (seekBar.max != player.getMediaDuration()) seekBar.max = player.getMediaDuration()
+        if (type != null) {
+            seekBar.progress = position
+        } else seekBar
     }
 
     private fun prepareView() {
@@ -67,8 +74,13 @@ class MainActivity : AppCompatActivity(), MainActivityContract.View {
         findViewById<ImageButton>(R.id.pause).setOnClickListener(listener)
         findViewById<ImageButton>(R.id.resume).setOnClickListener(listener)
         presenter.viewIsReady()
+        seekBar.max = player.getMediaDuration()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.detachView()
+    }
 }
 
 

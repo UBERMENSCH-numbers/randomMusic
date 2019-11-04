@@ -18,4 +18,8 @@ class MediaPlayerControllerConnection (val IMediaPlayerEvents: IMediaPlayerEvent
         return IMediaPlayerEvents
     }
 
+    fun disconnectFromPlayer () {
+        mediaCallbacks = null
+        isClientConnected = false
+    }
 }

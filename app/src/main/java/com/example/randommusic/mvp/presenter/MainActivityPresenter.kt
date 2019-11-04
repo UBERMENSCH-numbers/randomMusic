@@ -2,20 +2,21 @@ package com.example.randommusic.mvp.presenter
 
 import android.util.Log
 import com.example.randommusic.Action
+import com.example.randommusic.MediaPlayerService
+import com.example.randommusic.interfaces.IMediaPlayerEvents
 import com.example.randommusic.mvp.contracts.MainActivityContract
 
 class MainActivityPresenter() : MainActivityContract.Presenter{
     val TAG = "MainPresenterTag"
     var view : MainActivityContract.View? = null
-    var isFirstAttaching = true
-
+    var i = 0;
     override fun attachView(mvpView: MainActivityContract.View) {
         Log.v(TAG, "View attached to MainPresenter")
         this.view = mvpView
 
-        if (isFirstAttaching) {
-            isFirstAttaching = false
+        if (!MediaPlayerService.isRunning) {
             view!!.createConnection(this)
+            MediaPlayerService.isRunning = true
         } else {
             view!!.restoreConnection(this)
         }
@@ -51,5 +52,9 @@ class MainActivityPresenter() : MainActivityContract.Presenter{
         }
     }
 
+    override fun onReady(player : IMediaPlayerEvents) {
+        player.setMediaPath("")
+        player.playMedia()
+    }
 }
 

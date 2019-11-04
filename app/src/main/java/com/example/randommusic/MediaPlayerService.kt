@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import android.util.Log
 
 
 class MediaPlayerService : Service() {
@@ -27,6 +28,7 @@ class MediaPlayerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
         isRunning = true
     }
 

@@ -8,7 +8,7 @@ import com.example.randommusic.mvp.presenter.MainActivityPresenter
 
 class ViewModel() : ViewModel() {
     val TAG = "viewModelTag"
-    var presenter = MainActivityPresenter()
+    val presenter = MainActivityPresenter()
     lateinit var connection : MediaPlayerControllerConnection
 
     fun updateConnection(callbacks: IMediaCallbacks) : IMediaPlayerEvents {
