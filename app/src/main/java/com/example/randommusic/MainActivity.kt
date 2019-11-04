@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import com.example.randommusic.interfaces.IMediaCallbacks
 import com.example.randommusic.interfaces.IMediaPlayerEvents
+import com.example.randommusic.interfaces.ISeekBarController
 import com.example.randommusic.mvp.contracts.MainActivityContract
 
 class MainActivity : AppCompatActivity(), MainActivityContract.View {
@@ -54,16 +55,19 @@ class MainActivity : AppCompatActivity(), MainActivityContract.View {
         prepareView()
     }
 
-    override fun seekBarTo(position: Int, type: String?) {
+    override fun seekBarTo(type: String, position: Int) {
         if (seekBar.max != player.getMediaDuration()) seekBar.max = player.getMediaDuration()
-        if (type != null) {
-            seekBar.progress = position
-        } else seekBar
+        if (type == "primary") seekBar.progress = position
+        else seekBar.secondaryProgress = position
+
     }
 
     private fun prepareView() {
         seekBar = findViewById(R.id.seekBar)
         val listener = View.OnClickListener {
+
+
+
             when (it.id) {
                 R.id.next -> presenter.onAction(Action.NEXT)
                 R.id.pause -> presenter.onAction(Action.PAUSE)
@@ -74,7 +78,6 @@ class MainActivity : AppCompatActivity(), MainActivityContract.View {
         findViewById<ImageButton>(R.id.pause).setOnClickListener(listener)
         findViewById<ImageButton>(R.id.resume).setOnClickListener(listener)
         presenter.viewIsReady()
-        seekBar.max = player.getMediaDuration()
     }
 
     override fun onDestroy() {

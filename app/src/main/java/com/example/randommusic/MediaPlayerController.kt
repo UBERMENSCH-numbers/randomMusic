@@ -20,6 +20,7 @@ OnErrorListener, OnSeekCompleteListener, OnInfoListener, OnBufferingUpdateListen
 
     override fun setMediaCallbacks(callbacks: IMediaCallbacks) {
         mediaCallbacks = callbacks
+        startUpdatingSeekbar()
     }
 
     override fun onCompletion(p0: MediaPlayer?) {
@@ -51,7 +52,6 @@ OnErrorListener, OnSeekCompleteListener, OnInfoListener, OnBufferingUpdateListen
 
     override fun onBufferingUpdate(mp: MediaPlayer?, progress: Int) {
         mediaCallbacks?.mediaBuffering(progress, mediaPlayer.duration) ?: Log.e(TAG, "MediaBuffedCallback not set")
-        if (progress == 100) startUpdatingSeekbar()
         Log.v(TAG, "Buffering $progress%")
     }
 
@@ -114,6 +114,8 @@ OnErrorListener, OnSeekCompleteListener, OnInfoListener, OnBufferingUpdateListen
             mediaPlayer.seekTo(position)
         }
     }
+
+    override fun isPlaying() = mediaPlayer.isPlaying
 
     override fun getMediaDuration () = mediaPlayer.duration
 

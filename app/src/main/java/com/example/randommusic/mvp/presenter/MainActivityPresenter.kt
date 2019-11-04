@@ -4,12 +4,13 @@ import android.util.Log
 import com.example.randommusic.Action
 import com.example.randommusic.MediaPlayerService
 import com.example.randommusic.interfaces.IMediaPlayerEvents
+import com.example.randommusic.interfaces.ISeekBarController
 import com.example.randommusic.mvp.contracts.MainActivityContract
 
 class MainActivityPresenter() : MainActivityContract.Presenter{
     val TAG = "MainPresenterTag"
     var view : MainActivityContract.View? = null
-    var i = 0;
+
     override fun attachView(mvpView: MainActivityContract.View) {
         Log.v(TAG, "View attached to MainPresenter")
         this.view = mvpView
@@ -24,7 +25,6 @@ class MainActivityPresenter() : MainActivityContract.Presenter{
     }
 
     override fun viewIsReady() {
-
     }
 
     override fun detachView() {
@@ -38,10 +38,12 @@ class MainActivityPresenter() : MainActivityContract.Presenter{
 
     override fun mediaBuffering(progress: Int, duration: Int) {
         Log.v(TAG, "mediaBuffering")
+        view!!.seekBarTo("secondary", (duration * progress/100))
     }
 
     override fun updateSeekbar(second: Int) {
         Log.v(TAG, "updateSeekbar")
+        view!!.seekBarTo("primary", second)
     }
 
     override fun onAction(action : Action) {
@@ -53,8 +55,10 @@ class MainActivityPresenter() : MainActivityContract.Presenter{
     }
 
     override fun onReady(player : IMediaPlayerEvents) {
-        player.setMediaPath("")
-        player.playMedia()
+        if (!player.isPlaying()) {
+            player.setMediaPath("")
+            player.playMedia()
+        }
     }
 }
 

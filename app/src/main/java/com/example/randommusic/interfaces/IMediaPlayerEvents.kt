@@ -12,5 +12,6 @@ interface IMediaPlayerEvents {
     fun initMediaPlayer ()
     fun onDestroy ()
     fun setMediaCallbacks (callbacks: IMediaCallbacks)
+    fun isPlaying () : Boolean
 }
 

@@ -5,3 +5,6 @@ enum class Action {
     NEXT,
     START
 }
+enum class ProgressBarType {
+    SECONDARY, PRIMARY
+}

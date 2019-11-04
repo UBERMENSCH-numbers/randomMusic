@@ -1,10 +1,7 @@
 package com.example.randommusic.mvp.contracts
 
 import com.example.randommusic.Action
-import com.example.randommusic.interfaces.IPresenter
-import com.example.randommusic.interfaces.IView
-import com.example.randommusic.interfaces.IMediaCallbacks
-import com.example.randommusic.interfaces.IMediaPlayerEvents
+import com.example.randommusic.interfaces.*
 
 class MainActivityContract {
     interface Presenter : IPresenter<View> , IMediaCallbacks {
@@ -12,10 +9,10 @@ class MainActivityContract {
         fun onReady(player : IMediaPlayerEvents)
     }
 
-    interface View : IView {
+    interface View : IView{
         fun restoreConnection (mediaCallbacks : IMediaCallbacks)
         fun createConnection (mediaCallbacks: IMediaCallbacks)
-        fun seekBarTo(position : Int, type : String? = "primary")
+        fun seekBarTo(type : String, position : Int)
     }
 
     interface Model {
